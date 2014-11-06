@@ -7,8 +7,6 @@ GASON_C_CPP(extern "C" {)
 #include <assert.h>
 #include <ctype.h>
 
-#define __ printf("%s:%d\n", __func__, __LINE__);
-
 #define new_c(x) (x *)malloc(sizeof(x))
 
 #define G_JSON_ZONE_SIZE 4096
