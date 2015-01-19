@@ -2,9 +2,9 @@
 #define _GASON_C_H
 
 #ifdef __cplusplus
-    #define GASON_C_CPP(x) x
+  #define GASON_C_CPP(x) x
 #else 
-    #define GASON_C_CPP(x)
+  #define GASON_C_CPP(x)
 #endif
 
 GASON_C_CPP(extern "C" {)
@@ -22,12 +22,13 @@ GASON_C_CPP(extern "C" {)
 #define G_JSON_VALUE_TAG_SHIFT 47
 
 enum gason_tag {
-    G_JSON_NUMBER = 0,
-    G_JSON_STRING,
-    G_JSON_BOOL,
-    G_JSON_ARRAY,
-    G_JSON_OBJECT,
-    G_JSON_NULL = 0xF
+  G_JSON_NUMBER = 0,
+  G_JSON_STRING,
+  G_JSON_TRUE,
+  G_JSON_FALSE,
+  G_JSON_ARRAY,
+  G_JSON_OBJECT,
+  G_JSON_NULL = 0xF
 };
 
 typedef enum    gason_tag           gason_tag_t;
@@ -37,23 +38,23 @@ typedef struct  gason_iterator_s    gason_iterator_t;
 typedef struct  gason_allocator_s   gason_allocator_t;
 
 struct  gason_value_s {
-    uint64_t ival;
-    double fval;
+  uint64_t ival;
+  double fval;
 };
 
 struct  gason_node_s {
-    gason_value_t value;
-    gason_node_t *next;
-    char *key;
+  gason_value_t value;
+  gason_node_t *next;
+  char *key;
 };
 
 struct  gason_iterator_s {
-    gason_node_t *p;
+  gason_node_t *p;
 };
 
 struct gason_allocator_Zone {
-    struct gason_allocator_Zone *next;
-    size_t used;
+  struct gason_allocator_Zone *next;
+  size_t used;
 };
 
 struct gason_allocator_s {
@@ -63,18 +64,18 @@ struct gason_allocator_s {
 gason_value_t *gason_value_new();
 gason_value_t *gason_value_new_double(double x);
 gason_value_t *gason_value_new_type(gason_tag_t tag, void *p);
-bool gason_value_is_double(gason_value_t *v);
-gason_tag_t gason_value_get_tag(gason_value_t *v);
-uint64_t gason_value_get_payload(gason_value_t *v);
-double gason_value_to_number(gason_value_t *v);
-bool gason_value_to_bool(gason_value_t *v);
-char *gason_value_to_string(gason_value_t *v);
-gason_node_t *gason_value_to_node(gason_value_t *v);
+bool           gason_value_is_double(gason_value_t *v);
+gason_tag_t    gason_value_get_tag(gason_value_t *v);
+uint64_t       gason_value_get_payload(gason_value_t *v);
+double         gason_value_to_number(gason_value_t *v);
+// bool           gason_value_to_bool(gason_value_t *v);
+char          *gason_value_to_string(gason_value_t *v);
+gason_node_t  *gason_value_to_node(gason_value_t *v);
 
-gason_node_t *gason_node_new();
-gason_value_t gason_node_val(gason_node_t *n);
-gason_node_t *gason_node_next(gason_node_t *n);
-char         *gason_node_key(gason_node_t *n);
+gason_node_t  *gason_node_new();
+gason_value_t  gason_node_val(gason_node_t *n);
+gason_node_t  *gason_node_next(gason_node_t *n);
+char          *gason_node_key(gason_node_t *n);
 
 gason_iterator_t *gason_iterator_new();
 void gason_iterator_walk(gason_iterator_t *it); // ++ operator in c++
@@ -106,6 +107,7 @@ void *gason_allocator_allocate(gason_allocator_t *a, size_t size);
 void gason_allocator_deallocate(gason_allocator_t *a);
 
 int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t **al);
+char *gason_encode(gason_value_t *val, size_t *length, int pretty);
 
 GASON_C_CPP(})
 
