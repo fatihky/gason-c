@@ -531,10 +531,41 @@ char *_gason_encode(gason_value_t *o, char *buf, size_t *pos, size_t *buf_len, i
     n = sprintf(buf + *pos, type, val); \
     *pos += n
 
+  // enc_val("\"%s\"", str)
+
   #define enc_str(str) \
     str_len = strlen(str); \
     check_mem(str_len + 2); \
-    enc_val("\"%s\"", str)
+    enc_val("%s", "\""); \
+    while (*str) { \
+        int c = *str++; \
+        switch (c) { \
+        case '\b': \
+            enc_val("%s", "\\b"); \
+            break; \
+        case '\f': \
+            enc_val("%s", "\\f"); \
+            break; \
+        case '\n': \
+            enc_val("%s", "\\n"); \
+            break; \
+        case '\r': \
+            enc_val("%s", "\\r"); \
+            break; \
+        case '\t': \
+            enc_val("%s", "\\t"); \
+            break; \
+        case '\\': \
+            enc_val("%s", "\\\\"); \
+            break; \
+        case '"': \
+            enc_val("%s", "\\\""); \
+            break; \
+        default: \
+          enc_val("%c", (char)c); \
+        } \
+    } \
+    enc_val("%s\"", str)
 
   #define enc_shift() \
     check_mem(indent + ENC_SHIFT_WIDTH);  \
