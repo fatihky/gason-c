@@ -12,8 +12,8 @@ char *strdup(char *input)
 int main(int argc, char *argv[])
 {
   char *json = strdup("{\"fatih\": \"kaya\"}");
-  char *endptr = malloc(sizeof(char *));
-  gason_value_t *value = gason_value_new();
+  char *endptr = NULL;
+  gason_value_t *value = NULL;
   gason_allocator_t *al = gason_allocator_new();
   int result;
 
@@ -24,5 +24,6 @@ int main(int argc, char *argv[])
   char *ret = gason_encode(value, &length, 1);
   printf("encoded(pretty: 1): \n%s\n", ret);
 
+  gason_allocator_deallocate(al);
   return 0;
 }
