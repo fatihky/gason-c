@@ -197,6 +197,7 @@ int main(int argc, char **argv) {
     fprintf(stdout, "\n");
 
     // cleanup
+    gason_value_free(value);
     //gason_allocator_deallocate(allocator);
 
     return 0;

@@ -37,6 +37,7 @@ void gason_value_free(gason_value_t *self)
 gason_value_t *gason_value_new_double(double x)
 {
 	gason_value_t *ret = new_c(gason_value_t);
+	ret->ival = G_JSON_NUMBER;
 	ret->fval = x;
 	return ret;
 }
