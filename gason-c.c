@@ -176,7 +176,8 @@ int gason_value_add_string(gason_allocator_t *al, gason_value_t *self,
   char *propCopy;
   char *valueCopy;
 
-  assert(gason_value_get_tag(self) == G_JSON_OBJECT);
+  assert(gason_value_get_tag(self) == G_JSON_OBJECT
+        || gason_value_get_tag(self) == G_JSON_ARRAY);
 
   valueCopy = _strdup(al, value);
   if (valueCopy == NULL)
@@ -195,7 +196,8 @@ int gason_value_add_number(gason_allocator_t *al, gason_value_t *self,
 
   gason_value_t *val;
 
-  assert(gason_value_get_tag(self) == G_JSON_OBJECT);
+  assert(gason_value_get_tag(self) == G_JSON_OBJECT
+        || gason_value_get_tag(self) == G_JSON_ARRAY);
 
   val = gason_value_new_double(al, value);
   if (val == NULL)
@@ -212,7 +214,8 @@ int gason_value_add_bool(gason_allocator_t *al, gason_value_t *self,
 
   gason_value_t *val;
 
-  assert(gason_value_get_tag(self) == G_JSON_OBJECT);
+  assert(gason_value_get_tag(self) == G_JSON_OBJECT
+        || gason_value_get_tag(self) == G_JSON_ARRAY);
 
   GASON_CREATE_VALUE_OR_RETURN(value
                                ? G_JSON_TRUE
@@ -228,7 +231,8 @@ int gason_value_add_null(gason_allocator_t *al, gason_value_t *self,
 
   gason_value_t *val;
 
-  assert(gason_value_get_tag(self) == G_JSON_OBJECT);
+  assert(gason_value_get_tag(self) == G_JSON_OBJECT
+        || gason_value_get_tag(self) == G_JSON_ARRAY);
 
   GASON_CREATE_VALUE_OR_RETURN(G_JSON_NULL, NULL);
 
