@@ -117,6 +117,10 @@ gason_node_t *gason_value_to_node(gason_value_t *v)
   return (gason_node_t *)gason_value_get_payload(v);
 }
 
+/*
+ * Object methods
+ */
+
 int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
   char *propName,
   char *value) {
@@ -141,6 +145,44 @@ int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
     return GASON_ALLOCATION_FAILURE;
 
   val = gason_value_new_type(al, G_JSON_STRING, valueCopy);
+  if (val == NULL)
+    return GASON_ALLOCATION_FAILURE;
+
+  node = (gason_node_t *)gason_allocator_allocate(al, sizeof(gason_node_t));
+  if (node == NULL)
+    return GASON_ALLOCATION_FAILURE;
+
+  node->key = propCopy;
+  node->value = *val;
+  node->next = NULL;
+
+  if (!selfNode) {
+    gason_value_set_payload(self, G_JSON_OBJECT, node);
+  } else
+    selfNode->next = node;
+
+  return GASON_OK;
+}
+
+int gason_object_add_number(gason_allocator_t *al, gason_value_t *self,
+  char *propName,
+  double value) {
+
+  gason_value_t *object;
+  gason_value_t *val;
+  gason_node_t *node;
+  gason_node_t *selfNode;
+  char *propCopy;
+
+  assert(gason_value_get_tag(self) == G_JSON_OBJECT);
+
+  selfNode = gason_value_to_node(self);
+
+  propCopy = _strdup(al, propName);
+  if (propCopy == NULL)
+    return GASON_ALLOCATION_FAILURE;
+
+  val = gason_value_new_double(al, value);
   if (val == NULL)
     return GASON_ALLOCATION_FAILURE;
 
