@@ -29,6 +29,11 @@ gason_value_t *gason_value_new()
 	return ret;
 }
 
+void gason_value_free(gason_value_t *self)
+{
+  free(self);
+}
+
 gason_value_t *gason_value_new_double(double x)
 {
 	gason_value_t *ret = new_c(gason_value_t);

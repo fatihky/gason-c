@@ -62,6 +62,7 @@ struct gason_allocator_s {
 };
 
 gason_value_t *gason_value_new();
+void gason_value_free(gason_value_t *self);
 gason_value_t *gason_value_new_double(double x);
 gason_value_t *gason_value_new_type(gason_tag_t tag, void *p);
 bool           gason_value_is_double(gason_value_t *v);
