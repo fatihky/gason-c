@@ -132,8 +132,13 @@ int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
     return GASON_ALLOCATION_FAILURE;
 
   val = gason_value_new_type(al, G_JSON_STRING, valueCopy);
+  if (val = NULL)
+    return GASON_ALLOCATION_FAILURE;
 
   node = (gason_node_t *)gason_allocator_allocate(al, sizeof(gason_node_t));
+  if (node == NULL)
+    return GASON_ALLOCATION_FAILURE;
+
   node->key = propCopy;
   node->value = *val;
   node->next = NULL;
