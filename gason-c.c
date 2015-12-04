@@ -132,7 +132,7 @@ int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
     return GASON_ALLOCATION_FAILURE;
 
   val = gason_value_new_type(al, G_JSON_STRING, valueCopy);
-  if (val = NULL)
+  if (val == NULL)
     return GASON_ALLOCATION_FAILURE;
 
   node = (gason_node_t *)gason_allocator_allocate(al, sizeof(gason_node_t));
@@ -146,7 +146,6 @@ int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
   if (!selfNode) {
     uint64_t x = (uint64_t)node;
     assert(x <= G_JSON_VALUE_PAYLOAD_MASK);
-    gason_value_t *ret = gason_allocator_allocate(al, sizeof(gason_value_t));
     self->ival = G_JSON_VALUE_NAN_MASK
                  | ((uint64_t)G_JSON_OBJECT << G_JSON_VALUE_TAG_SHIFT)
                  | x;
