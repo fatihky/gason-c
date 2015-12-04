@@ -220,6 +220,20 @@ int gason_object_add_bool(gason_allocator_t *al, gason_value_t *self,
   return ret;
 }
 
+int gason_object_add_null(gason_allocator_t *al, gason_value_t *self,
+  char *propName) {
+
+  gason_value_t *val;
+
+  assert(gason_value_get_tag(self) == G_JSON_OBJECT);
+
+  GASON_CREATE_VALUE_OR_RETURN(G_JSON_NULL, NULL);
+
+  int ret = gason_object_insert_property(al, self, propName, *val);
+
+  return ret;
+}
+
 #undef GASON_CREATE_VALUE_OR_RETURN
 
 /*

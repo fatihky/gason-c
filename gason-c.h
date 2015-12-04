@@ -84,6 +84,8 @@ int gason_object_add_number(gason_allocator_t *al, gason_value_t *self,
 int gason_object_add_bool(gason_allocator_t *al, gason_value_t *self,
   char *propName,
   bool value);
+int gason_object_add_null(gason_allocator_t *al, gason_value_t *self,
+  char *propName);
 
 gason_node_t  *gason_node_new();
 gason_value_t  gason_node_val(gason_node_t *n);
