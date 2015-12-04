@@ -103,6 +103,36 @@ void create_object() {
   gason_allocator_deallocate(al);
 }
 
+void create_array() {
+  gason_allocator_t *al = gason_allocator_new();
+  gason_value_t *array;
+  gason_value_t *val;
+  gason_node_t *node;
+  gason_node_t *tmp;
+
+  val = gason_value_new_double(al, 274);
+  node = (gason_node_t *)gason_allocator_allocate(al, sizeof(gason_node_t));
+  node->key = NULL;
+  node->value = *val;
+  node->next = NULL;
+
+  val = gason_value_new_double(al, 227);
+  tmp = node;
+  node = (gason_node_t *)gason_allocator_allocate(al, sizeof(gason_node_t));
+  node->key = NULL;
+  node->value = *val;
+  node->next = NULL;
+  tmp->next = node;
+
+  array = gason_value_new_type(al, G_JSON_ARRAY, tmp);
+
+  printf("Array created. Here is a dump:\n");
+  dump_value(array, 0);
+  putchar('\n');
+
+  gason_allocator_deallocate(al);
+}
+
 void on_abort(int x) {
 	void *callstack[64];
 	int size = backtrace(callstack, sizeof(callstack)/sizeof(callstack[0]));
@@ -129,6 +159,9 @@ int main(int argc, char *argv[])
   // complex examples
   printf("\nObject creation ===============================================\n");
   create_object();
+
+  printf("\nArray creation ================================================\n");
+  create_array();
 
   return 0;
 }
