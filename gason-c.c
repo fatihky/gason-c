@@ -196,8 +196,17 @@ int gason_object_add_number(gason_allocator_t *al, gason_value_t *self,
 
   if (!selfNode) {
     gason_value_set_payload(self, G_JSON_OBJECT, node);
-  } else
-    selfNode->next = node;
+  } else {
+    // insert to tail
+    gason_node_t *tmp = selfNode;
+    for(;;) {
+      if (!tmp->next) {
+        tmp->next = node;
+        break;
+      }
+      tmp = tmp->next;
+    };
+  }
 
   return GASON_OK;
 }
