@@ -177,7 +177,11 @@ void *gason_allocator_allocate(gason_allocator_t *a, size_t size)
 
   size_t allocSize = sizeof(Zone) + size;
   Zone *zone = (Zone *)malloc(allocSize <= G_JSON_ZONE_SIZE ? G_JSON_ZONE_SIZE : allocSize);
+  if (zone === NULL)
+    return NULL;
+
   zone->used = allocSize;
+
   if (allocSize <= G_JSON_ZONE_SIZE || a->head == NULL)
   {
 		zone->next = a->head;
@@ -312,6 +316,7 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
 	gason_value_t *o;
 	int pos = -1;
 	bool separator = true;
+	gason_node_t *tmp;
 	*endptr = s;
 
 	while (*s)
@@ -502,11 +507,17 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
           keys[pos] = gason_value_to_string(o);
           continue;
         }
-        tails[pos] = insertAfter(tails[pos], (gason_node_t *)gason_allocator_allocate(*al, sizeof(gason_node_t)));
+        tmp = (gason_node_t *)gason_allocator_allocate(*al, sizeof(gason_node_t));
+        if (tmp === NULL)
+          return GASON_ALLOCATION_FAILURE;
+        tails[pos] = insertAfter(tails[pos], tmp);
         tails[pos]->key = keys[pos];
         keys[pos] = NULL;
       } else {
-        tails[pos] = insertAfter(tails[pos], (gason_node_t *)gason_allocator_allocate(*al, sizeof(gason_node_t) - sizeof(char *)));
+        tmp = (gason_node_t *)gason_allocator_allocate(*al, sizeof(gason_node_t) - sizeof(char *));
+        if (tmp === NULL)
+          return GASON_ALLOCATION_FAILURE;
+        tails[pos] = insertAfter(tails[pos], tmp);
       }
       tails[pos]->value = *o;
     }
