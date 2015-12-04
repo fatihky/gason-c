@@ -34,20 +34,20 @@ void gason_value_free(gason_value_t *self)
   free(self);
 }
 
-gason_value_t *gason_value_new_double(double x)
+gason_value_t *gason_value_new_double(gason_allocator_t *al, double x)
 {
-	gason_value_t *ret = new_c(gason_value_t);
+	gason_value_t *ret = gason_allocator_allocate(al, sizeof(gason_value_t));
 	ret->ival = G_JSON_NUMBER;
 	ret->fval = x;
 	return ret;
 }
 
-gason_value_t *gason_value_new_type(gason_tag_t tag, void *p)
+gason_value_t *gason_value_new_type(gason_allocator_t *al, gason_tag_t tag, void *p)
 {
   uint64_t x = (uint64_t)p;
   assert(tag <= G_JSON_VALUE_TAG_MASK);
   assert(x <= G_JSON_VALUE_PAYLOAD_MASK);
-  gason_value_t *ret = new_c(gason_value_t);
+  gason_value_t *ret = gason_allocator_allocate(al, sizeof(gason_value_t));
   ret->ival = G_JSON_VALUE_NAN_MASK | ((uint64_t)tag << G_JSON_VALUE_TAG_SHIFT) | x;
 	return ret;
 }
@@ -293,15 +293,15 @@ static inline gason_node_t *insertAfter(gason_node_t *tail, gason_node_t *node)
   return node;
 }
 
-static inline gason_value_t *listToValue(gason_tag_t tag, gason_node_t *tail)
+static inline gason_value_t *listToValue(gason_allocator_t *al, gason_tag_t tag, gason_node_t *tail)
 {
 	if (tail)
 	{
 		gason_node_t *head = tail->next;
 		tail->next = NULL;
-		return gason_value_new_type(tag, head);
+		return gason_value_new_type(al, tag, head);
 	}
-	return gason_value_new_type(tag, NULL);
+	return gason_value_new_type(al, tag, NULL);
 }
 
 int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t **al)
@@ -340,7 +340,7 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
   		case '7':
   		case '8':
   		case '9':
-  			o = gason_value_new_double(string2double(*endptr, &s));
+  			o = gason_value_new_double(*al, string2double(*endptr, &s));
   			if (!isdelim(*s))
   			{
   				*endptr = s;
@@ -348,7 +348,7 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
   			}
 			  break;
   		case '"':
-  			o = gason_value_new_type(G_JSON_STRING, s);
+  			o = gason_value_new_type(*al, G_JSON_STRING, s);
         #ifdef __SSE4_2__
   			cmpistri(s, "\"\\\t\n", 0);
         #endif
@@ -422,19 +422,19 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
       case 't':
         if(!(s[0] == 'r' && s[1] == 'u' && s[2] == 'e' && isdelim(s[3])))
           return GASON_BAD_IDENTIFIER;
-        o = gason_value_new_type(G_JSON_TRUE, (void *)NULL);
+        o = gason_value_new_type(*al, G_JSON_TRUE, (void *)NULL);
         s += 3;
         break;
       case 'f':
           if(!(s[0] == 'a' && s[1] == 'l' && s[2] == 's' && s[3] == 'e' && isdelim(s[4])))
             return GASON_BAD_IDENTIFIER;
-          o = gason_value_new_type(G_JSON_FALSE, (void *)NULL);
+          o = gason_value_new_type(*al, G_JSON_FALSE, (void *)NULL);
           s += 4;
           break;
       case 'n':
         if(!(s[0] == 'u' && s[1] == 'l' && s[2] == 'l' && isdelim(s[3])))
           return GASON_BAD_IDENTIFIER;
-        o = gason_value_new_type(G_JSON_NULL, (void *)NULL);
+        o = gason_value_new_type(*al, G_JSON_NULL, (void *)NULL);
         s += 3;
         break;
       case ']':
@@ -442,7 +442,7 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
           return GASON_STACK_UNDERFLOW;
         if (tags[pos] != G_JSON_ARRAY)
           return GASON_MISMATCH_BRACKET;
-        o = listToValue(G_JSON_ARRAY, tails[pos--]);
+        o = listToValue(*al, G_JSON_ARRAY, tails[pos--]);
         break;
       case '}':
         if (pos == -1)
@@ -451,7 +451,7 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
           return GASON_MISMATCH_BRACKET;
         if (keys[pos] != NULL)
           return GASON_UNEXPECTED_CHARACTER;
-        o = listToValue(G_JSON_OBJECT, tails[pos--]);
+        o = listToValue(*al, G_JSON_OBJECT, tails[pos--]);
         break;
       case '[':
         if (++pos == G_JSON_STACK_SIZE)

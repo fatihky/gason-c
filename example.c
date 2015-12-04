@@ -25,5 +25,8 @@ int main(int argc, char *argv[])
   printf("encoded(pretty: 1): \n%s\n", ret);
 
   gason_allocator_deallocate(al);
+  free(al);
+  free(ret);
+  free(json);
   return 0;
 }

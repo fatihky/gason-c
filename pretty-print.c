@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
     source[sourceSize] = 0;
 
     char *endptr;
-    gason_value_t *value = gason_value_new();
+    gason_value_t *value = NULL;
     gason_allocator_t *allocator = gason_allocator_new();
     int status = gason_parse(source, &endptr, &value, &allocator);
     if (status != GASON_OK) {
@@ -197,8 +197,9 @@ int main(int argc, char **argv) {
     fprintf(stdout, "\n");
 
     // cleanup
-    gason_value_free(value);
-    //gason_allocator_deallocate(allocator);
+    free(source);
+    gason_allocator_deallocate(allocator);
+    free(allocator);
 
     return 0;
 }
