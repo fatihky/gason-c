@@ -135,6 +135,7 @@ int gason_value_insert_child(gason_allocator_t *al,
   gason_node_t *selfNode;
   char *propCopy = NULL;
 
+  gason_tag_t tag = gason_value_get_tag(self);
   selfNode = gason_value_to_node(self);
 
   if (propName != NULL) {
@@ -152,7 +153,7 @@ int gason_value_insert_child(gason_allocator_t *al,
   node->next = NULL;
 
   if (!selfNode) {
-    gason_value_set_payload(self, G_JSON_OBJECT, node);
+    gason_value_set_payload(self, tag, node);
   } else {
     // insert to tail
     gason_node_t *tmp = selfNode;

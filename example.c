@@ -96,7 +96,7 @@ void create_object() {
   node->next = NULL;
   object = gason_value_new_type(al, G_JSON_OBJECT, node);
 
-  gason_object_add_string(al, object, "foo", "bar");
+  gason_value_add_string(al, object, "foo", "bar");
 
   printf("Object created. Here is a dump:\n");
   dump_value(object, 0);
