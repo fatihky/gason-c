@@ -74,7 +74,11 @@ double         gason_value_to_number(gason_value_t *v);
 char          *gason_value_to_string(gason_value_t *v);
 gason_node_t  *gason_value_to_node(gason_value_t *v);
 
-
+// object methods
+int gason_value_insert_child(gason_allocator_t *al,
+  gason_value_t *self,
+  char *propName,
+  gason_value_t val);
 int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
   char *propName,
   char *value);
