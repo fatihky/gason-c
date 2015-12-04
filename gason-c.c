@@ -78,6 +78,15 @@ gason_tag_t gason_value_get_tag(gason_value_t *v)
     : (enum gason_tag)((v->ival >> G_JSON_VALUE_TAG_SHIFT) & G_JSON_VALUE_TAG_MASK);
 }
 
+void gason_value_set_payload(gason_value_t *v, gason_tag_t tag, void *p)
+{
+    uint64_t x = (uint64_t)p;
+    assert(x <= G_JSON_VALUE_PAYLOAD_MASK);
+    v->ival = G_JSON_VALUE_NAN_MASK
+              | ((uint64_t)tag << G_JSON_VALUE_TAG_SHIFT)
+              | x;
+}
+
 uint64_t gason_value_get_payload(gason_value_t *v)
 {
   assert(!gason_value_is_double(v));
@@ -144,11 +153,7 @@ int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
   node->next = NULL;
 
   if (!selfNode) {
-    uint64_t x = (uint64_t)node;
-    assert(x <= G_JSON_VALUE_PAYLOAD_MASK);
-    self->ival = G_JSON_VALUE_NAN_MASK
-                 | ((uint64_t)G_JSON_OBJECT << G_JSON_VALUE_TAG_SHIFT)
-                 | x;
+    gason_value_set_payload(self, G_JSON_OBJECT, node);
   } else
     selfNode->next = node;
 

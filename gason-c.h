@@ -72,6 +72,8 @@ double         gason_value_to_number(gason_value_t *v);
 // bool           gason_value_to_bool(gason_value_t *v);
 char          *gason_value_to_string(gason_value_t *v);
 gason_node_t  *gason_value_to_node(gason_value_t *v);
+void           gason_value_set_payload(gason_value_t *v, gason_tag_t tag, void *p);
+
 
 int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
   char *propName,
