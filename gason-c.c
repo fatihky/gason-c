@@ -126,7 +126,7 @@ gason_node_t *gason_value_to_node(gason_value_t *v)
   if (val == NULL) \
     return GASON_ALLOCATION_FAILURE
 
-static int gason_object_insert_property(gason_allocator_t *al,
+static int gason_value_insert_child(gason_allocator_t *al,
   gason_value_t *self,
   char *propName,
   gason_value_t val) {
@@ -181,7 +181,7 @@ int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
 
   GASON_CREATE_VALUE_OR_RETURN(G_JSON_STRING, valueCopy);
 
-  int ret = gason_object_insert_property(al, self, propName, *val);
+  int ret = gason_value_insert_child(al, self, propName, *val);
 
   return GASON_OK;
 }
@@ -198,7 +198,7 @@ int gason_object_add_number(gason_allocator_t *al, gason_value_t *self,
   if (val == NULL)
     return GASON_ALLOCATION_FAILURE;
 
-  int ret = gason_object_insert_property(al, self, propName, *val);
+  int ret = gason_value_insert_child(al, self, propName, *val);
 
   return ret;
 }
@@ -215,7 +215,7 @@ int gason_object_add_bool(gason_allocator_t *al, gason_value_t *self,
                                ? G_JSON_TRUE
                                : G_JSON_FALSE, NULL);
 
-  int ret = gason_object_insert_property(al, self, propName, *val);
+  int ret = gason_value_insert_child(al, self, propName, *val);
 
   return ret;
 }
@@ -229,7 +229,7 @@ int gason_object_add_null(gason_allocator_t *al, gason_value_t *self,
 
   GASON_CREATE_VALUE_OR_RETURN(G_JSON_NULL, NULL);
 
-  int ret = gason_object_insert_property(al, self, propName, *val);
+  int ret = gason_value_insert_child(al, self, propName, *val);
 
   return ret;
 }
