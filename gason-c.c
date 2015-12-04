@@ -18,6 +18,20 @@ typedef struct gason_allocator_Zone Zone;
 
 const int ENC_SHIFT_WIDTH = 4;
 
+char *_strdup(gason_allocator_t *al, char *input)
+{
+  size_t len = strlen(input);
+  char *ret = (char *)gason_allocator_allocate(al, len + 1);
+
+  if (ret == NULL)
+    return NULL;
+
+  memcpy(ret, input, len);
+  ret[len] = '\0';
+
+  return ret;
+}
+
 /*
  * gason_value_t
  */
@@ -59,7 +73,9 @@ bool gason_value_is_double(gason_value_t *v)
 
 gason_tag_t gason_value_get_tag(gason_value_t *v)
 {
-  return gason_value_is_double(v) ? G_JSON_NUMBER : (enum gason_tag)((v->ival >> G_JSON_VALUE_TAG_SHIFT) & G_JSON_VALUE_TAG_MASK);
+  return gason_value_is_double(v)
+    ? G_JSON_NUMBER
+    : (enum gason_tag)((v->ival >> G_JSON_VALUE_TAG_SHIFT) & G_JSON_VALUE_TAG_MASK);
 }
 
 uint64_t gason_value_get_payload(gason_value_t *v)
@@ -90,6 +106,49 @@ gason_node_t *gason_value_to_node(gason_value_t *v)
 {
   assert(gason_value_get_tag(v) == G_JSON_ARRAY || gason_value_get_tag(v) == G_JSON_OBJECT);
   return (gason_node_t *)gason_value_get_payload(v);
+}
+
+int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
+  char *propName,
+  char *value) {
+
+  gason_value_t *object;
+  gason_value_t *val;
+  gason_node_t *node;
+  gason_node_t *selfNode;
+  char *propCopy;
+  char *valueCopy;
+
+  assert(gason_value_get_tag(self) == G_JSON_OBJECT);
+
+  selfNode = gason_value_to_node(self);
+
+  propCopy = _strdup(al, propName);
+  if (propCopy == NULL)
+    return GASON_ALLOCATION_FAILURE;
+
+  valueCopy = _strdup(al, value);
+  if (valueCopy == NULL)
+    return GASON_ALLOCATION_FAILURE;
+
+  val = gason_value_new_type(al, G_JSON_STRING, valueCopy);
+
+  node = (gason_node_t *)gason_allocator_allocate(al, sizeof(gason_node_t));
+  node->key = propCopy;
+  node->value = *val;
+  node->next = NULL;
+
+  if (!selfNode) {
+    uint64_t x = (uint64_t)node;
+    assert(x <= G_JSON_VALUE_PAYLOAD_MASK);
+    gason_value_t *ret = gason_allocator_allocate(al, sizeof(gason_value_t));
+    self->ival = G_JSON_VALUE_NAN_MASK
+                 | ((uint64_t)G_JSON_OBJECT << G_JSON_VALUE_TAG_SHIFT)
+                 | x;
+  } else
+    selfNode->next = node;
+
+  return GASON_OK;
 }
 
 /*
@@ -176,7 +235,9 @@ void *gason_allocator_allocate(gason_allocator_t *a, size_t size)
   }
 
   size_t allocSize = sizeof(Zone) + size;
-  Zone *zone = (Zone *)malloc(allocSize <= G_JSON_ZONE_SIZE ? G_JSON_ZONE_SIZE : allocSize);
+  Zone *zone = (Zone *)malloc(allocSize <= G_JSON_ZONE_SIZE
+                                        ? G_JSON_ZONE_SIZE
+                                        : allocSize);
   if (zone == NULL)
     return NULL;
 
@@ -298,7 +359,8 @@ static inline gason_node_t *insertAfter(gason_node_t *tail, gason_node_t *node)
   return node;
 }
 
-static inline gason_value_t *listToValue(gason_allocator_t *al, gason_tag_t tag, gason_node_t *tail)
+static inline gason_value_t *listToValue(gason_allocator_t *al,
+  gason_tag_t tag, gason_node_t *tail)
 {
 	if (tail)
 	{
@@ -518,7 +580,8 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
         tails[pos]->key = keys[pos];
         keys[pos] = NULL;
       } else {
-        tmp = (gason_node_t *)gason_allocator_allocate(*al, sizeof(gason_node_t) - sizeof(char *));
+        tmp = (gason_node_t *)gason_allocator_allocate(*al,
+          sizeof(gason_node_t) - sizeof(char *));
         if (tmp == NULL)
           return GASON_ALLOCATION_FAILURE;
         tails[pos] = insertAfter(tails[pos], tmp);
@@ -528,7 +591,8 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
   return GASON_BREAKING_BAD;
 }
 
-char *_gason_encode(gason_value_t *o, char *buf, size_t *pos, size_t *buf_len, int pretty, int indent)
+char *_gason_encode(gason_value_t *o, char *buf, size_t *pos, size_t *buf_len,
+  int pretty, int indent)
 {
   if(buf == NULL) {
     *buf_len = GASON_ENCODE_INITIAL_SIZE;
