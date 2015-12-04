@@ -324,10 +324,13 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
 #ifdef __SSE4_2__
 		cmpistri(s, "\x20\t\n\v\f\r", _SIDD_NEGATIVE_POLARITY);
 #else
-		while (isspace(*s)) ++s;
+    while (isspace(*s)) {
+      ++s;
+      if (!*s) break;
+    }
 #endif
 		*endptr = s++;
-		switch (**endptr)
+    switch (**endptr)
 		{
   		case '-':
   			if (!isdigit(*s) && *s != '.')
