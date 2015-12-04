@@ -167,7 +167,7 @@ int gason_value_insert_child(gason_allocator_t *al,
   }
 }
 
-int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
+int gason_value_add_string(gason_allocator_t *al, gason_value_t *self,
   char *propName,
   char *value) {
 
@@ -189,7 +189,7 @@ int gason_object_add_string(gason_allocator_t *al, gason_value_t *self,
   return GASON_OK;
 }
 
-int gason_object_add_number(gason_allocator_t *al, gason_value_t *self,
+int gason_value_add_number(gason_allocator_t *al, gason_value_t *self,
   char *propName,
   double value) {
 
@@ -206,7 +206,7 @@ int gason_object_add_number(gason_allocator_t *al, gason_value_t *self,
   return ret;
 }
 
-int gason_object_add_bool(gason_allocator_t *al, gason_value_t *self,
+int gason_value_add_bool(gason_allocator_t *al, gason_value_t *self,
   char *propName,
   bool value) {
 
@@ -223,7 +223,7 @@ int gason_object_add_bool(gason_allocator_t *al, gason_value_t *self,
   return ret;
 }
 
-int gason_object_add_null(gason_allocator_t *al, gason_value_t *self,
+int gason_value_add_null(gason_allocator_t *al, gason_value_t *self,
   char *propName) {
 
   gason_value_t *val;
