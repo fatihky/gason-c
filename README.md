@@ -11,8 +11,8 @@ I converted c++ code to c only. Thanks to gason's authors.
 
 <br>
 
-Run `make` for compile `example.c` and `pretty-print.c` files. And run ``make clean`
- for delete example programs.
+Run `make` to compile `example.c` and `pretty-print.c` files. And run ``make clean`
+ to delete example programs.
 
 Example usage of `pretty-print`:<br>
 `cat test.json | ./pretty-print -`
