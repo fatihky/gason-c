@@ -133,13 +133,15 @@ int gason_value_insert_child(gason_allocator_t *al,
 
   gason_node_t *node;
   gason_node_t *selfNode;
-  char *propCopy;
+  char *propCopy = NULL;
 
   selfNode = gason_value_to_node(self);
 
-  propCopy = _strdup(al, propName);
-  if (propCopy == NULL)
-    return GASON_ALLOCATION_FAILURE;
+  if (propName != NULL) {
+    propCopy = _strdup(al, propName);
+    if (propCopy == NULL)
+      return GASON_ALLOCATION_FAILURE;
+  }
 
   node = (gason_node_t *)gason_allocator_allocate(al, sizeof(gason_node_t));
   if (node == NULL)
