@@ -2,7 +2,8 @@ gason-c
 =======
 
 # c implementation of gason
-I converted c++ code to c only. Thanks to gason's authors.
+I converted c++ code to c and added some additional features(dynamically
+object generation, encoding etc.). Thanks to gason's authors.
 
 ## Notes
 - This library can encode json object to `char *`. please look at the `gason-c.h`.
