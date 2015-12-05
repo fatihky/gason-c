@@ -136,6 +136,17 @@ const gason_value_t *gason_object_get_prop(gason_value_t *v, char *p) {
   return NULL;
 }
 
+const gason_value_t *gason_array_get_prop(gason_value_t *v, int index) {
+  assert(gason_value_get_tag(v) == G_JSON_ARRAY);
+  int pos = 0;
+  for(gason_node_t *i = gason_value_to_node(v); i; i = i->next) {
+    if (pos == index)
+      return &i->value;
+    pos++;
+  }
+  return NULL;
+}
+
 int gason_value_insert_child(gason_allocator_t *al,
   gason_value_t *self,
   char *propName,

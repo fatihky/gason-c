@@ -76,6 +76,7 @@ gason_node_t  *gason_value_to_node(gason_value_t *v);
 
 // object methods
 const gason_value_t *gason_object_get_prop(gason_value_t *v, char *p);
+const gason_value_t *gason_array_get_prop(gason_value_t *v, int index);
 int gason_value_insert_child(gason_allocator_t *al,
   gason_value_t *self,
   char *propName,
