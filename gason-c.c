@@ -121,11 +121,6 @@ gason_node_t *gason_value_to_node(gason_value_t *v)
  * Object/Array methods
  */
 
-#define GASON_CREATE_VALUE_OR_RETURN(tag, value_) \
-  val = gason_value_new_type(al, tag, value_); \
-  if (val == NULL) \
-    return GASON_ALLOCATION_FAILURE
-
 const gason_value_t *gason_object_get_prop(gason_value_t *v, char *p) {
   assert(gason_value_get_tag(v) == G_JSON_OBJECT);
   size_t pLen = strlen(p);
@@ -192,7 +187,7 @@ int gason_value_add_string(gason_allocator_t *al, gason_value_t *self,
   char *propName,
   char *value) {
 
-  gason_value_t *val;
+  gason_value_t val;
 
   char *propCopy;
   char *valueCopy;
@@ -204,9 +199,9 @@ int gason_value_add_string(gason_allocator_t *al, gason_value_t *self,
   if (valueCopy == NULL)
     return GASON_ALLOCATION_FAILURE;
 
-  GASON_CREATE_VALUE_OR_RETURN(G_JSON_STRING, valueCopy);
+  gason_value_set_payload(&val, G_JSON_STRING, valueCopy);
 
-  int ret = gason_value_insert_child(al, self, propName, *val);
+  int ret = gason_value_insert_child(al, self, propName, val);
 
   return GASON_OK;
 }
@@ -215,16 +210,15 @@ int gason_value_add_number(gason_allocator_t *al, gason_value_t *self,
   char *propName,
   double value) {
 
-  gason_value_t *val;
+  gason_value_t val;
 
   assert(gason_value_get_tag(self) == G_JSON_OBJECT
         || gason_value_get_tag(self) == G_JSON_ARRAY);
 
-  val = gason_value_new_double(al, value);
-  if (val == NULL)
-    return GASON_ALLOCATION_FAILURE;
+	val.ival = G_JSON_NUMBER;
+	val.fval = value;
 
-  int ret = gason_value_insert_child(al, self, propName, *val);
+  int ret = gason_value_insert_child(al, self, propName, val);
 
   return ret;
 }
@@ -233,16 +227,16 @@ int gason_value_add_bool(gason_allocator_t *al, gason_value_t *self,
   char *propName,
   bool value) {
 
-  gason_value_t *val;
+  gason_value_t val;
 
   assert(gason_value_get_tag(self) == G_JSON_OBJECT
         || gason_value_get_tag(self) == G_JSON_ARRAY);
 
-  GASON_CREATE_VALUE_OR_RETURN(value
+  gason_value_set_payload(&val, value
                                ? G_JSON_TRUE
                                : G_JSON_FALSE, NULL);
 
-  int ret = gason_value_insert_child(al, self, propName, *val);
+  int ret = gason_value_insert_child(al, self, propName, val);
 
   return ret;
 }
@@ -250,19 +244,17 @@ int gason_value_add_bool(gason_allocator_t *al, gason_value_t *self,
 int gason_value_add_null(gason_allocator_t *al, gason_value_t *self,
   char *propName) {
 
-  gason_value_t *val;
+  gason_value_t val;
 
   assert(gason_value_get_tag(self) == G_JSON_OBJECT
         || gason_value_get_tag(self) == G_JSON_ARRAY);
 
-  GASON_CREATE_VALUE_OR_RETURN(G_JSON_NULL, NULL);
+  gason_value_set_payload(&val, G_JSON_NULL, NULL);
 
-  int ret = gason_value_insert_child(al, self, propName, *val);
+  int ret = gason_value_insert_child(al, self, propName, val);
 
   return ret;
 }
-
-#undef GASON_CREATE_VALUE_OR_RETURN
 
 /*
  * gason_node_t
