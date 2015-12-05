@@ -118,13 +118,23 @@ gason_node_t *gason_value_to_node(gason_value_t *v)
 }
 
 /*
- * Object methods
+ * Object/Array methods
  */
 
 #define GASON_CREATE_VALUE_OR_RETURN(tag, value_) \
   val = gason_value_new_type(al, tag, value_); \
   if (val == NULL) \
     return GASON_ALLOCATION_FAILURE
+
+const gason_value_t *gason_object_get_prop(gason_value_t *v, char *p) {
+  assert(gason_value_get_tag(v) == G_JSON_OBJECT);
+  size_t pLen = strlen(p);
+  for(gason_node_t *i = gason_value_to_node(v); i; i = i->next) {
+    if (strncmp(p, i->key, pLen) == 0)
+      return &i->value;
+  }
+  return NULL;
+}
 
 int gason_value_insert_child(gason_allocator_t *al,
   gason_value_t *self,
