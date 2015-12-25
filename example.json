@@ -1,0 +1,52 @@
+{
+    "bid_request": {
+        "members": [{
+            "id": 5
+        }],
+        "allow_exclusive": false,
+        "debug_requested": false,
+        "tags": [{
+            "id": 13,
+            "sizes": ["728x90"],
+            "position": "unknown",
+            "inventory_source_id": 476,
+            "auction_id_64": 8984480746668973511,
+            "reserve_price": 1.25,
+            "tag_format": "javascript",
+            "ad_profile_id": 382,
+            "default_creative_id": 29,
+            "tag_data": "page_id=242",
+            "querystring": "age=21&gender=male"
+        }, {
+            "id": 17,
+            "sizes": ["300x250"],
+            "position": "unknown",
+            "inventory_source_id": 300,
+            "auction_id_64": 8984480746668973512,
+            "reserve_price": 1.5,
+            "tag_format": "javascript",
+            "ad_profile_id": 389,
+            "default_creative_id": 32,
+            "tag_data": "page_id=242",
+            "querystring": "age=21&gender=male"
+        }],
+        "bid_info": {
+            "user_id_64": 2987961585469200312,
+            "selling_member_id": 3,
+            "no_cookies": false,
+            "ip_address": "96.246.152.18",
+            "user_agent": "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.5; en-US;rv:1.9.0.3) Gecko/2008092414 Firefox/3.0.3",
+            "country": "US",
+            "region": "NY",
+            "city": "New York",
+            "postal_code": 10014,
+            "dma": 501,
+            "time_zone": "America/New_York",
+            "url": "http://www.yahoo.com/",
+            "domain": "yahoo.com",
+            "inventory_class": "class_1",
+            "within_iframe": false,
+            "total_clicks": 0
+        }
+    }
+}

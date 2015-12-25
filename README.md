@@ -10,6 +10,9 @@ object generation, encoding etc.). Thanks to gason's authors.
 - Please take a look at example.c before using this.
 - Include gason-c.h and gason-c.c files to your project and compile with `-lm --std=c99`.
 
+### Performance
+Parses `example.json` 100.000 times in 108ms.
+
 <br>
 
 Run `make` to compile `example.c` and `pretty-print.c` files. And run ``make clean`
