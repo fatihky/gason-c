@@ -181,6 +181,8 @@ int gason_value_insert_child(gason_allocator_t *al,
       tmp = tmp->next;
     };
   }
+
+  return 0;
 }
 
 int gason_value_add_string(gason_allocator_t *al, gason_value_t *self,
@@ -696,39 +698,40 @@ int gason_parse(char *s, char **endptr, gason_value_t **value, gason_allocator_t
   return GASON_BREAKING_BAD;
 }
 
-char *_gason_encode(gason_value_t *o, char *buf, size_t *pos, size_t *buf_len,
+char *_gason_encode(gason_value_t *o, char **buf, size_t *pos, size_t *buf_len,
   int pretty, int indent)
 {
-  if(buf == NULL) {
+  if(*buf == NULL) {
     *buf_len = GASON_ENCODE_INITIAL_SIZE;
-    buf = malloc(*buf_len);
+    *buf = malloc(*buf_len);
     *pos = 0;
   }
 
   int n;
   size_t str_len;
   double num, fraction;
+  char *tmp;
 
   #define check_mem(needed) \
-    while(needed > *buf_len - *pos) \
-    { \
+    while(needed > *buf_len - *pos) { \
       *buf_len += GASON_ENCODE_INITIAL_SIZE; \
       *buf_len += GASON_ENCODE_INITIAL_SIZE > needed ? 0 : needed; \
-      buf = realloc(buf, *buf_len); \
+      *buf = realloc(*buf, *buf_len); \
     }
 
   #define enc_val(type, val) \
-    n = sprintf(buf + *pos, type, val); \
+    n = sprintf(*buf + *pos, type, val); \
     *pos += n
 
   // enc_val("\"%s\"", str)
 
   #define enc_str(str) \
     str_len = strlen(str); \
-    check_mem(str_len + 2); \
+    check_mem(str_len + 3); \
     enc_val("%s", "\""); \
-    while (*str) { \
-        int c = *str++; \
+    tmp = str; \
+    while (*tmp) { \
+        int c = *tmp++; \
         switch (c) { \
         case '\b': \
             enc_val("%s", "\\b"); \
@@ -755,133 +758,129 @@ char *_gason_encode(gason_value_t *o, char *buf, size_t *pos, size_t *buf_len,
           enc_val("%c", (char)c); \
         } \
     } \
-    enc_val("%s\"", str)
+    enc_val("%s\"", tmp)
 
   #define enc_shift() \
-    check_mem(indent + ENC_SHIFT_WIDTH);  \
-    n = sprintf(buf + *pos, "%*s", indent + ENC_SHIFT_WIDTH, ""); \
+    check_mem(indent + ENC_SHIFT_WIDTH + 1);  \
+    n = sprintf(*buf + *pos, "%*s", indent + ENC_SHIFT_WIDTH, ""); \
     *pos += n
 
   #define enc_indent() \
     check_mem(indent); \
-    n = sprintf(buf + *pos, "%*s", indent, ""); \
+    n = sprintf(*buf + *pos, "%*s", indent, ""); \
     *pos += n
 
-  switch(gason_value_get_tag(o))
-  {
+  switch(gason_value_get_tag(o)) {
     case G_JSON_NUMBER:
       num = gason_value_to_number(o);
       fraction = fmod(num, 1.0);
-      check_mem(21);
-      if(fraction == 0)
-      {
+      check_mem(30);
+      if(fraction == 0) {
         enc_val("%d", (int)floor(num));
       } else {
         enc_val("%f", num);
       }
       break;
-    case G_JSON_STRING:
-    {
+    case G_JSON_STRING: {
       char *str = gason_value_to_string(o);
       enc_str(str);
     } break;
     case G_JSON_TRUE:
-      check_mem(4);
+      check_mem(5);
       enc_val("%s", "true");
       break;
     case G_JSON_FALSE:
-      check_mem(5);
+      check_mem(6);
       enc_val("%s", "false");
       break;
     case G_JSON_NULL:
-      check_mem(4);
+      check_mem(5);
       enc_val("%s", "null");
       break;
-    case G_JSON_ARRAY:
-    {
+    case G_JSON_ARRAY: {
+      // encode array
+      check_mem(3);
+
+      // check if array empty
       if (!gason_value_to_node(o)) {
-        check_mem(2);
         enc_val("%s", "[]");
         break;
       }
-      check_mem(2);
-      if(pretty) {
-        enc_val("%s", "[\n");
-      } else {
-        enc_val("%s", "[");
-      }
+
+      // open array
+      enc_val("%s", pretty ? "[\n" : "[");
+
       for (gason_node_t *i = gason_value_to_node(o); i; i = i->next)
       {
-        if(pretty)
-        {
+        if(pretty) {
           enc_shift();
         }
+
+        // encode element's value
         _gason_encode(&i->value, buf, pos, buf_len, pretty, indent + ENC_SHIFT_WIDTH);
-        if(i->next)
-        {
-          check_mem(2);
-          if(pretty) {
-            enc_val("%s", ",\n");
-          } else {
-            enc_val("%s", ",");
-          }
-        } else if(pretty) {
-          check_mem(1);
+
+        check_mem(3);
+
+        if(i->next) {
+          enc_val("%s", pretty ? ",\n" : ",");
+        }
+        else if(pretty) {
           enc_val("%s", "\n");
         }
       }
-      if(pretty)
-      {
+
+      if(pretty) {
         enc_indent();
       }
-      check_mem(1);
+
+      // close array
+      check_mem(2);
       enc_val("%s", "]");
+
     } break;
-    case G_JSON_OBJECT:
-    {
+    case G_JSON_OBJECT: {
+
+      // encode
+      check_mem(3);
+
+      // check if object empty
       if (!gason_value_to_node(o)) {
-        check_mem(2);
         enc_val("%s", "{}");
         break;
       }
-      check_mem(2);
-      if(pretty) {
-        enc_val("%s", "{\n");
-      } else {
-        enc_val("%s", "{");
-      }
-      for (gason_node_t *i = gason_value_to_node(o); i; i = i->next)
-      {
-        if(pretty)
-        {
+
+      // open object
+      enc_val("%s", pretty ? "{\n" : "{");
+
+      for (gason_node_t *i = gason_value_to_node(o); i; i = i->next) {
+
+        if(pretty) {
           enc_shift();
         }
+
+        // encode property's key
         enc_str(i->key);
-        check_mem(2);
-        if(pretty) {
-          enc_val("%s", ": ");
-        } else {
-          enc_val("%s", ":");
-        }
+        check_mem(3);
+        enc_val("%s", pretty ? ": " : ":");
+
+        // encode property's value
         _gason_encode(&i->value, buf, pos, buf_len, pretty, indent + ENC_SHIFT_WIDTH);
-        check_mem(2);
-        if(i->next)
-        {
-          if(pretty) {
-            enc_val("%s", ",\n");
-          } else {
-            enc_val("%s", ",");
-          }
+
+        // add ',' if necessary
+        check_mem(3);
+        if(i->next) {
+          enc_val("%s", pretty ? ",\n" : ",");
         } else if(pretty) {
           enc_val("%s", "\n");
         }
       }
 
-      if(pretty)
-      {
+      if(pretty) {
         enc_indent();
       }
-      check_mem(1);
+
+      // close object
+      check_mem(2);
       enc_val("%s", "}");
     } break;
   }
@@ -892,14 +891,15 @@ char *_gason_encode(gason_value_t *o, char *buf, size_t *pos, size_t *buf_len,
   #undef enc_shift
   #undef enc_indent
 
-  return buf;
+  return *buf;
 }
 
 char *gason_encode(gason_value_t *o, size_t *length, int pretty)
 {
   size_t buf_len = 0;
   size_t pos = 0;
-  char *ret = _gason_encode(o, NULL, &pos, &buf_len, pretty, 0);
+  char *ret = NULL;
+  _gason_encode(o, &ret, &pos, &buf_len, pretty, 0);
   *length = pos;
   return ret;
 }
