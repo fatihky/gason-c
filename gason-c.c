@@ -766,7 +766,7 @@ char *_gason_encode(gason_value_t *o, char **buf, size_t *pos, size_t *buf_len,
     *pos += n
 
   #define enc_indent() \
-    check_mem(indent); \
+    check_mem(indent + 1); \
     n = sprintf(*buf + *pos, "%*s", indent, ""); \
     *pos += n
 
