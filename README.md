@@ -13,6 +13,9 @@ object generation, encoding etc.). Thanks to gason's authors.
 ### Performance
 Parses `example.json` 100.000 times in 108ms.
 
+Compiling with [qrintf](https://github.com/h2o/qrintf) improves encoding performance by %20 for number heavy json(example object: {stat: "ok", res: [1, 2, 3 ...]}).
+Example compile command for `qrintf`: `qrintf cc -c --std=gnu99 -o gason-c.o gason-c.c`
+
 <br>
 
 Run `make` to compile `example.c` and `pretty-print.c` files. And run ``make clean`
